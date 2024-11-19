@@ -1,0 +1,10 @@
+# Ignore the llmenv directory
+llmenv/
+
+# Ignore the result folder
+result/
+
+# Ignore the agent_log.log file
+agent_log.log
+
+__pycache__/
