@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from agent import LLM_Agent
-import os
 
 # Flask app
 app = Flask(__name__)
@@ -8,8 +7,8 @@ app = Flask(__name__)
 # Database configuration
 db_config = {
     'driver': '{ODBC Driver 17 for SQL Server}',
-    'server': os.getenv('SERVER'),
-    'database': os.getenv('DATABASE')
+    'server': 'MSI',
+    'database': 'EHR'
 }
 
 # Initialize LLM Agent
@@ -41,3 +40,21 @@ def health_check():
     Health check endpoint to verify the API is running.
     """
     return jsonify({'status': 'API is running.'}), 200
+
+
+@app.route('/get_logs', methods=['GET'])
+def get_logs():
+    """
+    Endpoint to fetch the contents of the log file.
+    """
+    log_file_path = 'agent_log.log'
+    try:
+        with open(log_file_path, 'r') as log_file:
+            logs = log_file.read()
+        return jsonify({
+            "logs": logs
+        }), 200
+    except FileNotFoundError:
+        return jsonify({"error": "Log file not found."}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

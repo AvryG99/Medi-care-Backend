@@ -11,6 +11,14 @@ import sys
 class LLM_Agent:
     def __init__(self, db_config):
         self.db_config = db_config
+        self.setup_logging()
+
+    def setup_logging(self):
+        logging.basicConfig(
+            filename='agent_log.log',
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
 
     def query_chatgpt(self, prompt):
         response = openai.ChatCompletion.create(
@@ -19,7 +27,7 @@ class LLM_Agent:
                       {"role": "user", "content": prompt}],
             max_tokens=1000
         )
-
+        
         # Extract the generated code from the response
         generated_code = self.extract_generated_code(response.choices[0].message['content'])
         
@@ -39,35 +47,57 @@ class LLM_Agent:
     def sanitize_code(self, code):
         normalized_code = unicodedata.normalize('NFKD', code).encode('ascii', 'ignore').decode('utf-8')
         return normalized_code
-    
+
     def process_question(self, question):
         prompt = generate_prompt(question, self.db_config)
         final_code = None
+        answer = None  # To hold the captured print output
+        
         for attempt in range(3):
             code = self.query_chatgpt(prompt)
-            result = ""
             try:
+                # Redirect stdout to capture print statements
+                captured_output = io.StringIO()
+                sys.stdout = captured_output  # Redirect print to the StringIO buffer
+                
                 # Execute the retrieved code
-                result = exec(code)
+                exec_globals = {}
+                exec_locals = {}
+                exec(code, exec_globals, exec_locals)
+
+                # Now captured_output contains the printed values
+                answer = captured_output.getvalue().strip()  # Capture printed output
                 final_code = code  # Store the final successfully executed code
-                self.log_interaction(question, "Execution successful", code, success=True)
+                self.log_interaction(question, f"Execution successful, answer: {answer}", code, success=True)
                 break
             except Exception as e:
                 error_message = f"Error occurred with the generated code:\n{code}\nError details:\n{str(e)}\n"
                 self.log_interaction(question, error_message, code, success=False)
                 prompt = self.update_prompt(prompt, e)
-        
+            finally:
+                # Reset stdout back to normal
+                sys.stdout = sys.__stdout__
+
         current_time = datetime.now()
         formatted_time = current_time.strftime("%Y%m%d%H%M%S")
         file_name = f'result/result-{formatted_time}.py'  
-        print(f'result: {result}')
+
         if final_code:
             with open(file_name, 'w') as file:
                 file.write(final_code)
-            return result
+
+        if answer is not None:
+            return answer
         else:
             return "Unable to retrieve the data after 3 attempts."
-    
+
+    def log_interaction(self, question, result, code, success=True):
+        if success:
+            log_message = f"Question: {question}\nResult:\n{result}\n"
+            logging.info(log_message)
+        else:
+            log_message = f"Question: {question}\nError Message:\n{result}\n"
+            logging.error(log_message)
 
     def update_prompt(self, prompt, error):
         error_prompt = f"{prompt}\nThe following error occurred:\n{str(error)}\nPlease fix the code."
