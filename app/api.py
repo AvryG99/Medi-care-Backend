@@ -58,3 +58,44 @@ def get_logs():
         return jsonify({"error": "Log file not found."}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/set_model', methods=['POST'])
+def set_model():
+    try:
+        data = request.get_json()
+        if 'model' not in data:
+            return jsonify({"error": "Missing 'model' field in request"}), 400
+
+        model = data['model']
+        agent.set_gpt_model(model)
+        return jsonify({"message": f"Model updated to {model}"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/set_max_tokens', methods=['POST'])
+def set_max_tokens():
+    try:
+        data = request.get_json()
+        if 'max_tokens' not in data:
+            return jsonify({"error": "Missing 'max_tokens' field in request"}), 400
+
+        max_tokens = int(data['max_tokens'])
+        agent.set_max_tokens(max_tokens)
+        return jsonify({"message": f"Max tokens updated to {max_tokens}"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/set_temperature', methods=['POST'])
+def set_temperature():
+    try:
+        data = request.get_json()
+        if 'temperature' not in data:
+            return jsonify({"error": "Missing 'temperature' field in request"}), 400
+
+        temperature = float(data['temperature'])
+        agent.set_temperature(temperature)
+        return jsonify({"message": f"Temperature updated to {temperature}"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

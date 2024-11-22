@@ -12,6 +12,9 @@ class LLM_Agent:
     def __init__(self, db_config):
         self.db_config = db_config
         self.setup_logging()
+        self.gpt_model = GPT_MODEL
+        self.max_tokens = 1000
+        self.temperature = 0.7
 
     def setup_logging(self):
         logging.basicConfig(
@@ -20,13 +23,27 @@ class LLM_Agent:
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
 
+    def set_gpt_model(self, model):
+        self.gpt_model = model
+        logging.info(f"GPT model updated to: {model}")
+
+    def set_max_tokens(self, max_tokens):
+        self.max_tokens = max_tokens
+        logging.info(f"Max tokens updated to: {max_tokens}")
+
+    def set_temperature(self, temperature):
+        self.temperature = temperature
+        logging.info(f"Temperature updated to: {temperature}")
+
     def query_chatgpt(self, prompt):
         response = openai.ChatCompletion.create(
-            model=GPT_MODEL,
+            model=self.gpt_model,
             messages=[{"role": "system", "content": "You are a Python programming assistant."},
                       {"role": "user", "content": prompt}],
-            max_tokens=1000
+            max_tokens=self.max_tokens,
+            temperature=self.temperature
         )
+        return response['choices'][0]['message']['content']
         
         # Extract the generated code from the response
         generated_code = self.extract_generated_code(response.choices[0].message['content'])
