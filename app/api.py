@@ -11,12 +11,14 @@ from werkzeug.serving import WSGIRequestHandler
 # Increase timeout to 5 minutes
 WSGIRequestHandler.timeout = 300
 # Database configuration
+import os
+
 db_config = {
     'driver': '{ODBC Driver 17 for SQL Server}',
-    'server': 'idk.database.windows.net',
-    'database': 'mimic-iii',
-    'user': 'averyg99',
-    'password': '#GiAHuY762002'
+    'server': os.getenv('DB_SERVER'),
+    'database': os.getenv('DB_DATABASE'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD')
 }
 
 # Initialize LLM Agent
