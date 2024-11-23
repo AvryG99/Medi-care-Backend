@@ -78,7 +78,7 @@ def generate_prompt(question, db_config):
     {tables_info}
 
     The connection string is:
-    driver={db_config['driver']};server={db_config['server']};database={db_config['database']};Trusted_Connection=yes;
+    driver={db_config['driver']};server={db_config['server']};database={db_config['database']};UID={db_config['user']};PWD={db_config['password']};
 
     Make sure to use appropriate SQL queries and handle any potential errors.
 

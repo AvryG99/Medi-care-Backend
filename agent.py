@@ -43,7 +43,8 @@ class LLM_Agent:
             max_tokens=self.max_tokens,
             temperature=self.temperature
         )
-        return response['choices'][0]['message']['content']
+        # print(response['choices'][0]['message']['content'])
+        # return response['choices'][0]['message']['content']
         
         # Extract the generated code from the response
         generated_code = self.extract_generated_code(response.choices[0].message['content'])

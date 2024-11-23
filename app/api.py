@@ -1,14 +1,22 @@
 from flask import Flask, request, jsonify
 from agent import LLM_Agent
+from flask_cors import CORS
 
 # Flask app
 app = Flask(__name__)
+CORS(app)
 
+from werkzeug.serving import WSGIRequestHandler
+
+# Increase timeout to 5 minutes
+WSGIRequestHandler.timeout = 300
 # Database configuration
 db_config = {
     'driver': '{ODBC Driver 17 for SQL Server}',
-    'server': 'MSI',
-    'database': 'EHR'
+    'server': 'web-service.database.windows.net',
+    'database': 'mimic-iii',
+    'user': 'averyg99',
+    'password': '#GiAHuY762002'
 }
 
 # Initialize LLM Agent
