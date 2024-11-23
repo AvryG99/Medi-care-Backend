@@ -13,7 +13,7 @@ WSGIRequestHandler.timeout = 300
 # Database configuration
 db_config = {
     'driver': '{ODBC Driver 17 for SQL Server}',
-    'server': 'web-service.database.windows.net',
+    'server': 'idk.database.windows.net',
     'database': 'mimic-iii',
     'user': 'averyg99',
     'password': '#GiAHuY762002'
