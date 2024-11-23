@@ -12,9 +12,6 @@ class LLM_Agent:
     def __init__(self, db_config):
         self.db_config = db_config
         self.setup_logging()
-        self.gpt_model = GPT_MODEL
-        self.max_tokens = 1000
-        self.temperature = 0.7
 
     def setup_logging(self):
         logging.basicConfig(
@@ -23,28 +20,13 @@ class LLM_Agent:
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
 
-    def set_gpt_model(self, model):
-        self.gpt_model = model
-        logging.info(f"GPT model updated to: {model}")
-
-    def set_max_tokens(self, max_tokens):
-        self.max_tokens = max_tokens
-        logging.info(f"Max tokens updated to: {max_tokens}")
-
-    def set_temperature(self, temperature):
-        self.temperature = temperature
-        logging.info(f"Temperature updated to: {temperature}")
-
     def query_chatgpt(self, prompt):
         response = openai.ChatCompletion.create(
-            model=self.gpt_model,
+            model=GPT_MODEL,
             messages=[{"role": "system", "content": "You are a Python programming assistant."},
                       {"role": "user", "content": prompt}],
-            max_tokens=self.max_tokens,
-            temperature=self.temperature
+            max_tokens=1000
         )
-        # print(response['choices'][0]['message']['content'])
-        # return response['choices'][0]['message']['content']
         
         # Extract the generated code from the response
         generated_code = self.extract_generated_code(response.choices[0].message['content'])
@@ -69,43 +51,28 @@ class LLM_Agent:
     def process_question(self, question):
         prompt = generate_prompt(question, self.db_config)
         final_code = None
-        answer = None  # To hold the captured print output
-        
         for attempt in range(3):
             code = self.query_chatgpt(prompt)
+            result = ""
             try:
-                # Redirect stdout to capture print statements
-                captured_output = io.StringIO()
-                sys.stdout = captured_output  # Redirect print to the StringIO buffer
-                
                 # Execute the retrieved code
-                exec_globals = {}
-                exec_locals = {}
-                exec(code, exec_globals, exec_locals)
-
-                # Now captured_output contains the printed values
-                answer = captured_output.getvalue().strip()  # Capture printed output
+                result = exec(code)
                 final_code = code  # Store the final successfully executed code
-                self.log_interaction(question, f"Execution successful, answer: {answer}", code, success=True)
+                self.log_interaction(question, "Execution successful", code, success=True)
                 break
             except Exception as e:
                 error_message = f"Error occurred with the generated code:\n{code}\nError details:\n{str(e)}\n"
                 self.log_interaction(question, error_message, code, success=False)
                 prompt = self.update_prompt(prompt, e)
-            finally:
-                # Reset stdout back to normal
-                sys.stdout = sys.__stdout__
-
+        
         current_time = datetime.now()
         formatted_time = current_time.strftime("%Y%m%d%H%M%S")
         file_name = f'result/result-{formatted_time}.py'  
-
+        print(f'result: {result}')
         if final_code:
             with open(file_name, 'w') as file:
                 file.write(final_code)
-
-        if answer is not None:
-            return answer
+            return result
         else:
             return "Unable to retrieve the data after 3 attempts."
 
