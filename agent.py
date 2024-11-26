@@ -103,9 +103,23 @@ class LLM_Agent:
         if final_code:
             with open(file_name, 'w') as file:
                 file.write(final_code)
-
+        response_prompt = f"""
+        The user given a question as follow: {question}.
+        An LLM Agent answer that question by generating a python code as follow: {final_code} 
+        with the following result from the code: {answer}.
+        Can you help me generate a response to answer the question from the user?
+        Please do not mention about the generated code in the response since user doesn't know about the code is exist.
+        Answer by the format: "Based on your question and the current data record from the database, the answer is [the answer].
+        """
+        response = openai.ChatCompletion.create(
+            model=self.gpt_model,
+            messages=[{"role": "system", "content": "You are a response generation assistant."},
+                      {"role": "user", "content": response_prompt}],
+            max_tokens=self.max_tokens,
+            temperature=self.temperature
+        )
         if answer is not None:
-            return answer
+            return response['choices'][0]['message']['content']
         else:
             return "Unable to retrieve the data after 3 attempts."
 
