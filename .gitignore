@@ -1,5 +1,5 @@
 # Ignore the llmenv directory
-env/
+llmenv/
 
 # Ignore the result folder
 result/

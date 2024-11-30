@@ -98,7 +98,8 @@ class LLM_Agent:
 
         current_time = datetime.now()
         formatted_time = current_time.strftime("%Y%m%d%H%M%S")
-        file_name = f'server2/Medi-care-Backend/result/result-{formatted_time}.py'  
+        #file_name = f'server2/Medi-care-Backend/result/result-{formatted_time}.py' 
+        file_name = f'result/result-{formatted_time}.py' 
 
         if final_code:
             with open(file_name, 'w') as file:
