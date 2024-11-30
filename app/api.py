@@ -24,7 +24,7 @@ db_config = {
 # Initialize LLM Agent
 agent = LLM_Agent(db_config)
 
-@app.route('/process_question', methods=['POST'])
+@app.route('/flask/process_question', methods=['POST'])
 def process_question():
     try:
         data = request.get_json()
@@ -44,7 +44,7 @@ def process_question():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/health', methods=['GET'])
+@app.route('/flask/health', methods=['GET'])
 def health_check():
     """
     Health check endpoint to verify the API is running.
@@ -52,7 +52,7 @@ def health_check():
     return jsonify({'status': 'API is running.'}), 200
 
 
-@app.route('/get_logs', methods=['GET'])
+@app.route('/flask/get_logs', methods=['GET'])
 def get_logs():
     """
     Endpoint to fetch the contents of the log file.
@@ -69,7 +69,7 @@ def get_logs():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/set_model', methods=['POST'])
+@app.route('/flask/set_model', methods=['POST'])
 def set_model():
     try:
         data = request.get_json()
@@ -83,7 +83,7 @@ def set_model():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/set_max_tokens', methods=['POST'])
+@app.route('/flask/set_max_tokens', methods=['POST'])
 def set_max_tokens():
     try:
         data = request.get_json()
@@ -97,7 +97,7 @@ def set_max_tokens():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/set_temperature', methods=['POST'])
+@app.route('/flask/set_temperature', methods=['POST'])
 def set_temperature():
     try:
         data = request.get_json()
