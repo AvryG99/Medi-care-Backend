@@ -7,7 +7,7 @@
       "description": "API documentation for Hospital Management System"
     },
     "paths": {
-      "/flash/process_question": {
+      "/process_question": {
         "post": {
           "tags": ["LLM Agent"],
           "summary": "Process the question and get the answer",
@@ -55,7 +55,7 @@
           }
         }
       },
-      "/flash/health": {
+      "/health": {
         "get": {
           "tags": ["Health"],
           "summary": "Check API health status",
@@ -76,7 +76,7 @@
           }
         }
       },
-      "/flash/get_logs": {
+      "/get_logs": {
         "get": {
           "tags": ["Logs"],
           "summary": "Fetch the contents of the log file",
@@ -103,7 +103,7 @@
           }
         }
       },
-      "/flash/set_model": {
+      "/set_model": {
         "post": {
           "tags": ["Configuration"],
           "summary": "Set a new model for the LLM Agent",
@@ -147,7 +147,7 @@
           }
         }
       },
-      "/flash/set_max_tokens": {
+      "/set_max_tokens": {
         "post": {
           "tags": ["Configuration"],
           "summary": "Set the max tokens for the LLM Agent",
@@ -191,7 +191,7 @@
           }
         }
       },
-      "/flash/set_temperature": {
+      "/set_temperature": {
         "post": {
           "tags": ["Configuration"],
           "summary": "Set the temperature for the LLM Agent",
