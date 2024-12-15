@@ -18,19 +18,22 @@ jobs:
       with:
         python-version: '3.10'  # Set the Python version you're using
 
-    - name: Install dependencies
-      run: |
-        # Not necessary here, since dependencies should be installed on the server
-        echo "Dependencies will be installed on the server during deployment"
-
     - name: Deploy to server
       env:
         DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
         DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
       run: |
+        # Ensure the server's host key is added to known_hosts
+        mkdir -p ~/.ssh
+        ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
+        
+        # Create a temporary file for the private key
+        echo "$DEPLOY_SSH_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        
         # SSH into the server and pull the latest code from GitHub
-        ssh -i <(echo "$DEPLOY_SSH_KEY") $DEPLOY_USER@$DEPLOY_SERVER << 'EOF'
+        ssh -i ~/.ssh/id_rsa $DEPLOY_USER@$DEPLOY_SERVER << 'EOF'
           cd /home/averyg99/web/Medi-care-Backend
           git pull origin main  # Pull latest code
 
