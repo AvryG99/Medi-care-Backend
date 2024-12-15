@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # This will trigger the workflow when you push to the main branch.
+      - main  # Trigger workflow on push to the 'main' branch
 
 jobs:
   deploy:
@@ -20,8 +20,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        source env/bin/activate
-        pip install -r requirements.txt
+        # Not necessary here, since dependencies should be installed on the server
+        echo "Dependencies will be installed on the server during deployment"
 
     - name: Deploy to server
       env:
@@ -30,10 +30,16 @@ jobs:
         DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
       run: |
         # SSH into the server and pull the latest code from GitHub
-        ssh -i $DEPLOY_SSH_KEY $DEPLOY_USER@$DEPLOY_SERVER << 'EOF'
+        ssh -i <(echo "$DEPLOY_SSH_KEY") $DEPLOY_USER@$DEPLOY_SERVER << 'EOF'
           cd /home/averyg99/web/Medi-care-Backend
           git pull origin main  # Pull latest code
-          source env/bin/activate
+
+          # Activate the existing virtual environment
+          source /home/averyg99/web/Medi-care-Backend/env/bin/activate
+
+          # Install dependencies on the server
           pip install -r requirements.txt
+
+          # Restart the app service (Flask)
           systemctl restart flask-server  # Restart your app service
         EOF
