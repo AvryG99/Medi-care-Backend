@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # This will trigger the workflow when you push to the main branch.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Use a GitHub runner for CI
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'  # Set the Python version you're using
+
+    - name: Install dependencies
+      run: |
+        python -m venv env
+        source env/bin/activate
+        pip install -r requirements.txt
+
+    - name: Deploy to server
+      env:
+        DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
+        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      run: |
+        # SSH into the server and pull the latest code from GitHub
+        ssh -i $DEPLOY_SSH_KEY $DEPLOY_USER@$DEPLOY_SERVER << 'EOF'
+          cd /home/averyg99/web/Medi-care-Backend
+          git pull origin main  # Pull latest code
+          source env/bin/activate
+          pip install -r requirements.txt
+          systemctl restart flask-server  # Restart your app service
+        EOF
